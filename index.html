@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabula - Editor</title>
+    
+    <!-- Google Fonts: Inter per UI e Lora per Editor -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <!-- CONTENITORE PRINCIPALE (Layout Flex unico con i divisori) -->
+    <div class="app-container" style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
+        
+        <!-- BARRA LATERALE SINISTRA -->
+        <aside class="sidebar" id="left-sidebar" style="width: 260px; flex-shrink: 0;">
+            <div class="sidebar-header">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                    <img src="20260801_145615.png" alt="Fabula Logo" style="height: 52px; object-fit: contain;">
+                    <select class="lang-select" id="lang-selector" onchange="cambiaLingua(this.value)">
+                        <option value="it">IT</option>
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap: 6px;">
+                    <button class="header-icon-btn" id="btn-share" title="Condividi Progetto" onclick="alert(t('shareAlert'))">↗</button>
+                    <button class="header-icon-btn" id="btn-pdf" title="Esporta PDF" onclick="esportaManoscrittoPDF()">↓ PDF</button>
+                </div>
+            </div>
+            <div class="project-tree" id="project-tree"></div>
+        </aside>
+
+        <!-- DIVISORE SINISTRO -->
+        <div class="resizer" id="resizer-left"></div>
+
+        <!-- AREA CENTRALE EDITOR -->
+        <main class="main-editor" id="main-editor-container" style="flex: 1; min-width: 0;"></main>
+
+        <!-- DIVISORE DESTRO -->
+        <div class="resizer" id="resizer-right"></div>
+
+        <!-- PANNELLO DESTRA A SCHEDE -->
+        <aside class="structure-panel" id="right-structure-panel" style="width: 340px; flex-shrink: 0;">
+            <div class="panel-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="label-panel-header" style="font-weight: bold; color: #ecf0f1; font-size: 0.95rem;">Strumenti</span>                    
+                </div>
+                <div class="dict-tabs">
+                    <button class="dict-tab active" id="tab-scena" onclick="switchPanel('scena')">Scena</button>
+                    <button class="dict-tab" id="tab-crono" onclick="switchPanel('cronologia')">Cronologia</button>
+					<button class="dict-tab" id="tab-diz" onclick="switchPanel('dizionario')">Dizionario</button>
+                </div>
+            </div>
+
+            <!-- SCHEDA SCENA -->
+            <div class="notes-content" id="panel-scena">
+                <div class="note-group">
+                    <label class="note-label" id="lbl-pov">Personaggio POV</label>
+                    <select class="note-input" id="pov-input">
+                        <option value="">-- Seleziona Personaggio --</option>
+                    </select>
+                </div>
+
+                <div class="tool-section" style="margin-top: 24px;">
+                    <label class="beat-label">Topic</label>
+                    <textarea id="scene-topic-input" class="minimal-input" placeholder="Tema centrale / Dilemma" rows="1"></textarea>
+                </div>
+
+                <div class="tool-section" style="margin-top: 20px;">
+                    <label class="beat-label">Ground</label>
+                    <textarea id="scene-ground-input" class="minimal-input" placeholder="Contesto sensoriale / Sfondo" rows="1"></textarea>
+                </div>
+
+                <div id="beats-container-new" style="margin-top: 28px;"></div>
+            </div>
+
+            <!-- SCHEDA CRONOLOGIA -->
+            <div class="notes-content" id="panel-cronologia" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <label class="note-label" id="lbl-versions" style="margin-bottom:0;">Versioni Salvate</label>
+                    <button class="small-add-btn" id="btn-save-now" onclick="salvaVersioneCronologia()">+ Salva Ora</button>
+                </div>
+                <div id="cronologia-list">
+                    <div class="beat-item" id="lbl-no-versions" style="font-size: 0.85rem; color: #95a5a6; text-align: center; border: 1px dashed #4e6d8d; background: transparent;">
+                        Nessuna versione salvata.
+                    </div>
+                </div>
+            </div>
+			
+			<!-- SCHEDA DIZIONARIO (VERSIONE TAG) -->
+            <div class="notes-content" id="panel-dizionario" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <label class="note-label" id="lbl-dict-title" style="margin-bottom:0;">Dizionario & Lessico</label>
+                    <button class="small-add-btn" onclick="apriModaleNuovaVoceDizionario()">+ Tag</button>
+                </div>
+                
+                <!-- Nuovo Filtro Categorie -->
+                <div style="margin-bottom: 15px;">
+                    <select id="dict-category-filter" class="note-input" onchange="filtraTagDizionario()">
+                        <option value="Tutte">Tutte le categorie</option>
+                        <option value="Sinonimi ed Emozioni">Sinonimi ed Emozioni</option>
+                        <option value="Figure Retoriche">Figure Retoriche</option>
+                        <option value="Mappatura Lessicale">Mappatura Lessicale</option>
+                    </select>
+                </div>
+                
+                <!-- Contenitore dynamic per i tag raggruppati per categoria -->
+                <div id="dict-tags-container" class="dict-tags-container"></div>
+            </div>                
+				
+				<!-- Contenitore flessibile per i tag -->
+				<div id="dict-tags-container" class="dict-tags-container">
+					<span class="dict-tag">Timore <span class="tag-close">×</span></span>
+					<span class="dict-tag">Ossimoro <span class="tag-close">×</span></span>
+					<span class="dict-tag">Metafora <span class="tag-close">×</span></span>
+				</div>
+			</div>
+
+    <!-- MODALE GENERICA -->
+    <div class="modal-overlay" id="dict-modal" style="display: none;">
+		<div class="modal-box">
+			<h3 id="modal-dict-main-title">Nuova Voce Dizionario</h3>
+			<input type="hidden" id="dict-edit-id" value="">
+			<div class="modal-field">
+				<label id="lbl-modal-term">Termine / Parola</label>
+				<input type="text" id="modal-dict-term" placeholder="Es: Timore">
+			</div>
+			<div class="modal-field">
+				<label id="lbl-modal-cat">Categoria</label>
+				<select id="modal-dict-category">
+					<option value="Sinonimi ed Emozioni">Sinonimi ed Emozioni</option>
+					<option value="Figure Retoriche">Figure Retoriche</option>
+					<option value="Mappatura Lessicale">Mappatura Lessicale</option>
+				</select>
+			</div>
+			<div class="modal-field">
+				<label id="lbl-modal-def">Definizione / Descrizione</label>
+				<textarea id="modal-dict-def" placeholder="Spiega il significato..."></textarea>
+			</div>
+			<div class="modal-field">
+				<label id="lbl-modal-ex">Esempio</label>
+				<input type="text" id="modal-dict-ex" placeholder="Es: Ansia, apprensione, terrore.">
+			</div>
+			<div class="modal-buttons">
+				<button class="btn-cancel" onclick="chiudiModaleDizionario()">Annulla</button>
+				<button class="btn-save" onclick="salvaVoceDizionario()">Salva</button>
+			</div>
+		</div>
+	</div>   
+
+    <script src="script.js"></script>	
+        
+</body>
+</html>
