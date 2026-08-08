@@ -1083,7 +1083,8 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
             // Ridimensionamento verticale (in basso)
             const dy = e.clientY - startY;
             const newHeight = startHeight - dy; // trascina verso l'alto per ingrandire
-            if (newHeight >= 150 && newHeight <= 500) {
+            const maxHeight = window.innerHeight - 100; // Limite dinamico basato su viewport
+            if (newHeight >= 150 && newHeight <= maxHeight) {
                 panel.style.height = `${newHeight}px`;
                 panel.style.width = '100%';
                 progettoData.altezzaPannelloBottom = newHeight;
