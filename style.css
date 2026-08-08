@@ -179,6 +179,8 @@ select.note-input#pov-input option {
     user-select: none;
     flex-shrink: 0;
     transition: background-color 0.2s;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Cambia colore quando il mouse ci passa sopra o trascina */

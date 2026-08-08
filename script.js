@@ -1103,17 +1103,19 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         }
     };
 
-    const onPointerUp = () => {
+    const onPointerUp = (e) => {
+        resizer.releasePointerCapture(e.pointerId);
         resizer.classList.remove('dragging');
         document.body.style.cursor = '';
-        document.body.style.touchAction = '';
         document.body.style.userSelect = '';
-        document.removeEventListener('pointermove', onPointerMove);
-        document.removeEventListener('pointerup', onPointerUp);
+        resizer.removeEventListener('pointermove', onPointerMove);
+        resizer.removeEventListener('pointerup', onPointerUp);
     };
 
     resizer.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        resizer.setPointerCapture(e.pointerId);
+        
         startX = e.clientX;
         startY = e.clientY;
         startWidth = panel.getBoundingClientRect().width;
@@ -1122,11 +1124,10 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         resizer.classList.add('dragging');
         const isBottom = appContainer.classList.contains('layout-bottom');
         document.body.style.cursor = (!isLeftPanel && isBottom) ? 'row-resize' : 'col-resize';
-        document.body.style.touchAction = 'none';
         document.body.style.userSelect = 'none';
 
-        document.addEventListener('pointermove', onPointerMove);
-        document.addEventListener('pointerup', onPointerUp);
+        resizer.addEventListener('pointermove', onPointerMove);
+        resizer.addEventListener('pointerup', onPointerUp);
     });
 }
 
