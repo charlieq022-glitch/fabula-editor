@@ -1087,7 +1087,6 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
                 panel.style.height = `${newHeight}px`;
                 panel.style.width = '100%';
                 progettoData.altezzaPannelloBottom = newHeight;
-                salvaDati();
             }
         } else {
             // Ridimensionamento orizzontale
@@ -1095,15 +1094,12 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
             const newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
             if (newWidth >= 160 && newWidth <= 600) {
                 panel.style.width = `${newWidth}px`;
-                if (!isLeftPanel) {
-                    progettoData.larghezzaPannelloRight = newWidth;
-                    salvaDati();
-                }
             }
         }
     };
 
     const onPointerUp = (e) => {
+        salvaDati(); // Salva solo alla fine
         resizer.releasePointerCapture(e.pointerId);
         resizer.classList.remove('dragging');
         document.body.style.cursor = '';
