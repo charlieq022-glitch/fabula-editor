@@ -1080,7 +1080,7 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         const isBottom = appContainer.classList.contains('layout-bottom');
         
         if (!isLeftPanel && isBottom) {
-            // Ridimensionamento verticale (in basso)
+            // Ridimensionamento verticale (in basso) - INVARIATO
             const dy = e.clientY - startY;
             const newHeight = startHeight - dy; // trascina verso l'alto per ingrandire
             const maxHeight = window.innerHeight - 100; // Limite dinamico basato su viewport
@@ -1092,10 +1092,16 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         } else {
             // Ridimensionamento orizzontale
             const dx = e.clientX - startX;
-            const newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
-            if (newWidth >= 160 && newWidth <= 600) {
-                panel.style.width = `${newWidth}px`;
-            }
+            let newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
+            
+            // Limiti dinamici fluidi
+            const minWidth = 0; // Permette il collasso totale
+            const maxWidth = window.innerWidth * 0.8;
+            
+            if (newWidth < minWidth) newWidth = minWidth;
+            if (newWidth > maxWidth) newWidth = maxWidth;
+            
+            panel.style.width = `${newWidth}px`;
         }
     };
 
@@ -1103,6 +1109,7 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         salvaDati(); // Salva solo alla fine
         resizer.releasePointerCapture(e.pointerId);
         resizer.classList.remove('dragging');
+        resizer.style.zIndex = ''; // Ripristina z-index
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
         resizer.removeEventListener('pointermove', onPointerMove);
@@ -1119,6 +1126,7 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         startHeight = panel.getBoundingClientRect().height;
 
         resizer.classList.add('dragging');
+        resizer.style.zIndex = '1000'; // Assicura che sia sopra
         const isBottom = appContainer.classList.contains('layout-bottom');
         document.body.style.cursor = (!isLeftPanel && isBottom) ? 'row-resize' : 'col-resize';
         document.body.style.userSelect = 'none';
