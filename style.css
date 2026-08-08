@@ -291,3 +291,56 @@ select.note-input#pov-input option {
     margin-bottom: 4px;
     display: block;
 }
+/* Layout con pannello in basso */
+.app-container.layout-bottom {
+    display: grid !important;
+    grid-template-columns: auto 8px 1fr;
+    grid-template-rows: 1fr 8px auto;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container.layout-bottom #left-sidebar {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    height: 100vh !important;
+}
+
+.app-container.layout-bottom #resizer-left {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    height: 100vh !important;
+}
+
+.app-container.layout-bottom #main-editor-container {
+    grid-column: 3;
+    grid-row: 1;
+    height: 100% !important;
+}
+
+.app-container.layout-bottom #resizer-right {
+    grid-column: 3;
+    grid-row: 2;
+    cursor: row-resize;
+    height: 8px !important;
+    width: 100% !important;
+    background-color: #2c3e50;
+    border-top: 1px solid #1a252f;
+    border-bottom: 1px solid #1a252f;
+    z-index: 100;
+}
+
+.app-container.layout-bottom #right-structure-panel {
+    grid-column: 3;
+    grid-row: 3;
+    width: 100% !important;
+    border-left: none;
+    border-top: 1px solid #1a252f;
+}
+
+.app-container.layout-bottom #right-structure-panel.collapsed {
+    height: 0 !important;
+    min-height: 0 !important;
+    border: none;
+}

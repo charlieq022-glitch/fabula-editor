@@ -16,7 +16,7 @@
 <body>
 
     <!-- CONTENITORE PRINCIPALE (Layout Flex unico con i divisori) -->
-    <div class="app-container" style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
+    <div class="app-container" id="app-container" style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
         
         <!-- BARRA LATERALE SINISTRA -->
         <aside class="sidebar" id="left-sidebar" style="width: 260px; flex-shrink: 0;">
@@ -51,6 +51,7 @@
             <div class="panel-header">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span id="label-panel-header" style="font-weight: bold; color: #ecf0f1; font-size: 0.95rem;">Strumenti</span>                    
+                    <button id="btn-toggle-layout" class="header-icon-btn" title="Sposta in basso" onclick="toggleRightPanelLayout()" style="border: none; background: transparent; padding: 2px 6px; font-size: 0.9rem; cursor: pointer; color: #bdc3c7;">⬓</button>
                 </div>
                 <div class="dict-tabs">
                     <button class="dict-tab active" id="tab-scena" onclick="switchPanel('scena')">Scena</button>

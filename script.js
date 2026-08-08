@@ -142,6 +142,9 @@ let progettoData = {
     personaggiCollassati: false,
     dizionarioCollassato: false,
     plotCollassato: false,
+    layoutPannello: "right",
+    altezzaPannelloBottom: 300,
+    larghezzaPannelloRight: 340,
     capitoli: [
         {
             idCapitolo: 1,
@@ -1062,20 +1065,41 @@ window.esportaManoscrittoPDF = function() {
 function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
     const resizer = document.getElementById(resizerId);
     const panel = document.getElementById(panelId);
+    const appContainer = document.getElementById('app-container');
 
-    if (!resizer || !panel) {
+    if (!resizer || !panel || !appContainer) {
         return;
     }
 
     let startX = 0;
+    let startY = 0;
     let startWidth = 0;
+    let startHeight = 0;
 
     const onMouseMove = (e) => {
-        const dx = e.clientX - startX;
-        const newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
-
-        if (newWidth >= 160 && newWidth <= 600) {
-            panel.style.width = `${newWidth}px`;
+        const isBottom = appContainer.classList.contains('layout-bottom');
+        
+        if (!isLeftPanel && isBottom) {
+            // Ridimensionamento verticale (in basso)
+            const dy = e.clientY - startY;
+            const newHeight = startHeight - dy; // trascina verso l'alto per ingrandire
+            if (newHeight >= 150 && newHeight <= 500) {
+                panel.style.height = `${newHeight}px`;
+                panel.style.width = '100%';
+                progettoData.altezzaPannelloBottom = newHeight;
+                salvaDati();
+            }
+        } else {
+            // Ridimensionamento orizzontale (comportamento attuale)
+            const dx = e.clientX - startX;
+            const newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
+            if (newWidth >= 160 && newWidth <= 600) {
+                panel.style.width = `${newWidth}px`;
+                if (!isLeftPanel) {
+                    progettoData.larghezzaPannelloRight = newWidth;
+                    salvaDati();
+                }
+            }
         }
     };
 
@@ -1090,10 +1114,13 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
     resizer.addEventListener('mousedown', (e) => {
         e.preventDefault();
         startX = e.clientX;
+        startY = e.clientY;
         startWidth = panel.getBoundingClientRect().width;
+        startHeight = panel.getBoundingClientRect().height;
 
         resizer.classList.add('dragging');
-        document.body.style.cursor = 'col-resize';
+        const isBottom = appContainer.classList.contains('layout-bottom');
+        document.body.style.cursor = (!isLeftPanel && isBottom) ? 'row-resize' : 'col-resize';
         document.body.style.userSelect = 'none';
 
         document.addEventListener('mousemove', onMouseMove);
@@ -1106,6 +1133,38 @@ function attivaRidimensionamento() {
     abilitaRidimensionamentoPannello('resizer-right', 'right-structure-panel', false);
 }
 
+window.toggleRightPanelLayout = function() {
+    progettoData.layoutPannello = (progettoData.layoutPannello === 'right') ? 'bottom' : 'right';
+    salvaDati();
+    inizializzaLayoutPannello();
+};
+
+function inizializzaLayoutPannello() {
+    const appContainer = document.getElementById('app-container');
+    const rightPanel = document.getElementById('right-structure-panel');
+    const toggleBtn = document.getElementById('btn-toggle-layout');
+    
+    if (!appContainer || !rightPanel) return;
+
+    if (progettoData.layoutPannello === 'bottom') {
+        appContainer.classList.add('layout-bottom');
+        rightPanel.style.width = '100%';
+        rightPanel.style.height = `${progettoData.altezzaPannelloBottom || 300}px`;
+        if (toggleBtn) {
+            toggleBtn.innerHTML = '◨';
+            toggleBtn.title = 'Sposta a destra';
+        }
+    } else {
+        appContainer.classList.remove('layout-bottom');
+        rightPanel.style.width = `${progettoData.larghezzaPannelloRight || 340}px`;
+        rightPanel.style.height = '100%';
+        if (toggleBtn) {
+            toggleBtn.innerHTML = '⬓';
+            toggleBtn.title = 'Sposta in basso';
+        }
+    }
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', attivaRidimensionamento);
 } else {
@@ -1116,6 +1175,7 @@ function avviaApplicazione() {
     attivaRidimensionamento();
     aggiornaInterfacciaStatica();
     renderizzaAlbero();
+    inizializzaLayoutPannello();
 
     if (progettoData.capitoli && progettoData.capitoli[0] && progettoData.capitoli[0].scene[0]) {
         selezionaScena(progettoData.capitoli[0].scene[0].idScene);
