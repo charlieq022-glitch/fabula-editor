@@ -173,6 +173,7 @@ select.note-input#pov-input option {
 /* Divisori tra i pannelli */
 .resizer {
     width: 8px;
+    min-width: 8px; /* Garantisce che il resizer sia sempre cliccabile */
     cursor: col-resize;
     background-color: #2c3e50; /* Colore ben visibile */
     z-index: 100;
