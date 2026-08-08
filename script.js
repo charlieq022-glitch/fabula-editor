@@ -1076,6 +1076,8 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
     let startWidth = 0;
     let startHeight = 0;
 
+    let pendingWidth = null;
+
     const onPointerMove = (e) => {
         const isBottom = appContainer.classList.contains('layout-bottom');
         
@@ -1090,18 +1092,25 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
                 progettoData.altezzaPannelloBottom = newHeight;
             }
         } else {
-            // Ridimensionamento orizzontale
+            // Ridimensionamento orizzontale ottimizzato
             const dx = e.clientX - startX;
             let newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
             
             // Limiti dinamici fluidi
-            const minWidth = 0; // Permette il collasso totale
+            const minWidth = 0;
             const maxWidth = window.innerWidth * 0.8;
             
             if (newWidth < minWidth) newWidth = minWidth;
             if (newWidth > maxWidth) newWidth = maxWidth;
             
-            panel.style.width = `${newWidth}px`;
+            pendingWidth = newWidth;
+            
+            requestAnimationFrame(() => {
+                if (pendingWidth !== null) {
+                    panel.style.width = `${pendingWidth}px`;
+                    pendingWidth = null;
+                }
+            });
         }
     };
 
