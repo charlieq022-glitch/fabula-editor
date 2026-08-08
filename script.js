@@ -1076,7 +1076,7 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
     let startWidth = 0;
     let startHeight = 0;
 
-    const onMouseMove = (e) => {
+    const onPointerMove = (e) => {
         const isBottom = appContainer.classList.contains('layout-bottom');
         
         if (!isLeftPanel && isBottom) {
@@ -1090,7 +1090,7 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
                 salvaDati();
             }
         } else {
-            // Ridimensionamento orizzontale (comportamento attuale)
+            // Ridimensionamento orizzontale
             const dx = e.clientX - startX;
             const newWidth = isLeftPanel ? startWidth + dx : startWidth - dx;
             if (newWidth >= 160 && newWidth <= 600) {
@@ -1103,15 +1103,16 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         }
     };
 
-    const onMouseUp = () => {
+    const onPointerUp = () => {
         resizer.classList.remove('dragging');
         document.body.style.cursor = '';
+        document.body.style.touchAction = '';
         document.body.style.userSelect = '';
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
     };
 
-    resizer.addEventListener('mousedown', (e) => {
+    resizer.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         startX = e.clientX;
         startY = e.clientY;
@@ -1121,10 +1122,11 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         resizer.classList.add('dragging');
         const isBottom = appContainer.classList.contains('layout-bottom');
         document.body.style.cursor = (!isLeftPanel && isBottom) ? 'row-resize' : 'col-resize';
+        document.body.style.touchAction = 'none';
         document.body.style.userSelect = 'none';
 
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
     });
 }
 
