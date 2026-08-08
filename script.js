@@ -1135,7 +1135,11 @@ function abilitaRidimensionamentoPannello(resizerId, panelId, isLeftPanel) {
         startHeight = panel.getBoundingClientRect().height;
 
         resizer.classList.add('dragging');
-        resizer.style.zIndex = '1000'; // Assicura che sia sopra
+        resizer.style.zIndex = '1000';
+        
+        // Disabilita la transizione durante il drag per eliminare l'inerzia
+        panel.style.transition = 'none';
+
         const isBottom = appContainer.classList.contains('layout-bottom');
         document.body.style.cursor = (!isLeftPanel && isBottom) ? 'row-resize' : 'col-resize';
         document.body.style.userSelect = 'none';
